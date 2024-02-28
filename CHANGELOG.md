@@ -51,6 +51,8 @@ and this project adheres to
   - [#2645](https://github.com/bpftrace/bpftrace/pull/2645)
 - Field analyser: resolve fields for array accesses
   - [#3024](https://github.com/bpftrace/bpftrace/pull/3024)
+- Fix error in dereferencing kernel double pointers
+  - [#3024](https://github.com/bpftrace/bpftrace/pull/3024)
 #### Docs
 #### Tools
 
