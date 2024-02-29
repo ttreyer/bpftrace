@@ -49,6 +49,8 @@ and this project adheres to
   - [#3077](https://github.com/bpftrace/bpftrace/pull/3077)
 - Fix func builtin for kretprobes and uretprobes for kernels with working `get_func_ip` feature
   - [#2645](https://github.com/bpftrace/bpftrace/pull/2645)
+- Field analyser: resolve fields for array accesses
+  - [#3024](https://github.com/bpftrace/bpftrace/pull/3024)
 #### Docs
 #### Tools
 
