@@ -170,6 +170,7 @@ void FieldAnalyser::resolve_args(Probe &probe)
   // load probe arguments into a special record type "struct <probename>_args"
   Struct probe_args;
   for (auto *ap : *probe.attach_points) {
+    std::cout << "= " << ap->name() << '\n';
     auto probe_type = probetype(ap->provider);
     if (probe_type != ProbeType::kfunc && probe_type != ProbeType::kretfunc &&
         probe_type != ProbeType::uprobe)
@@ -194,6 +195,7 @@ void FieldAnalyser::resolve_args(Probe &probe)
         // module for kfuncs).
         std::string func = match;
         std::string target = erase_prefix(func);
+        std::cout << "=+ " << func << '\n';
 
         // Trying to attach to multiple kfuncs. If some of them fails on
         // argument resolution, do not fail hard, just print a warning and
@@ -217,9 +219,12 @@ void FieldAnalyser::resolve_args(Probe &probe)
             LOG(WARNING, ap->loc, err_) << "No debuginfo found for " << target;
         }
 
+        std::cout << "== ap_args: "; ap_args.Dump(std::cout);
+
         if (probe_args.size == -1)
           probe_args = ap_args;
         else if (ap_args != probe_args) {
+          std::cout << "!= ap_args: "; probe_args.Dump(std::cout);
           LOG(ERROR, ap->loc, err_)
               << "Probe has attach points with mixed arguments";
           break;
@@ -255,6 +260,9 @@ void FieldAnalyser::resolve_args(Probe &probe)
     // check if we already stored arguments for this probe
     auto args = bpftrace_.structs.Lookup(probe.args_typename()).lock();
     if (args && *args != probe_args) {
+      std::cout << "== probe_args: "; probe_args.Dump(std::cout);
+      std::cout << "== args: "; args->Dump(std::cout);
+
       // we did, and it's different...trigger the error
       LOG(ERROR, ap->loc, err_)
           << "Probe has attach points with mixed arguments";

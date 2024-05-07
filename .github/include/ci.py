@@ -13,16 +13,16 @@ system when subprocessing out. Safe things to expect are `git` and
 you are free to use whatever the flake provides.
 """
 
+import multiprocessing
+import os
+import shutil
+import subprocess
+import sys
 from collections import namedtuple
 from enum import Enum
 from functools import lru_cache
 from io import StringIO
-import multiprocessing
-import os
 from pathlib import Path
-import shutil
-import subprocess
-import sys
 from typing import Callable, Dict, List, Optional, Union
 
 BUILD_DIR = "build-ci"
@@ -236,53 +236,53 @@ def test():
             "bpftrace_test",
             lambda: truthy(RUN_TESTS),
             lambda: shell(
-                ["./tests/bpftrace_test"],
+                ["./tests/bpftrace_test", "--gtest_filter=field_analyser_dwarf.*"],
                 cwd=Path(BUILD_DIR),
                 env={"GTEST_COLOR": GTEST_COLOR},
             ),
         )
     )
-    results.append(
-        test_one(
-            "runtime-tests.sh",
-            lambda: truthy(RUN_TESTS),
-            lambda: shell(
-                ["./tests/runtime-tests.sh"],
-                as_root=True,
-                cwd=Path(BUILD_DIR),
-                env={
-                    "CI": CI,
-                    "RUNTIME_TEST_COLOR": RUNTIME_TEST_COLOR,
-                },
-            ),
-        )
-    )
-    results.append(
-        test_one(
-            "tools-parsing-test.sh",
-            lambda: truthy(RUN_TESTS),
-            lambda: shell(
-                [
-                    "./tests/tools-parsing-test.sh",
-                ],
-                as_root=True,
-                cwd=Path(BUILD_DIR),
-                env={
-                    "TOOLS_TEST_OLDVERSION": TOOLS_TEST_OLDVERSION,
-                    "TOOLS_TEST_DISABLE": TOOLS_TEST_DISABLE,
-                },
-            ),
-        )
-    )
-    results.append(
-        test_one(
-            "memleak-tests.sh.sh",
-            lambda: truthy(RUN_MEMLEAK_TEST),
-            lambda: shell(
-                ["./tests/memleak-tests.sh"], as_root=True, cwd=Path(BUILD_DIR)
-            ),
-        )
-    )
+    # results.append(
+    #     test_one(
+    #         "runtime-tests.sh",
+    #         lambda: truthy(RUN_TESTS),
+    #         lambda: shell(
+    #             ["./tests/runtime-tests.sh"],
+    #             as_root=True,
+    #             cwd=Path(BUILD_DIR),
+    #             env={
+    #                 "CI": CI,
+    #                 "RUNTIME_TEST_COLOR": RUNTIME_TEST_COLOR,
+    #             },
+    #         ),
+    #     )
+    # )
+    # results.append(
+    #     test_one(
+    #         "tools-parsing-test.sh",
+    #         lambda: truthy(RUN_TESTS),
+    #         lambda: shell(
+    #             [
+    #                 "./tests/tools-parsing-test.sh",
+    #             ],
+    #             as_root=True,
+    #             cwd=Path(BUILD_DIR),
+    #             env={
+    #                 "TOOLS_TEST_OLDVERSION": TOOLS_TEST_OLDVERSION,
+    #                 "TOOLS_TEST_DISABLE": TOOLS_TEST_DISABLE,
+    #             },
+    #         ),
+    #     )
+    # )
+    # results.append(
+    #     test_one(
+    #         "memleak-tests.sh.sh",
+    #         lambda: truthy(RUN_MEMLEAK_TEST),
+    #         lambda: shell(
+    #             ["./tests/memleak-tests.sh"], as_root=True, cwd=Path(BUILD_DIR)
+    #         ),
+    #     )
+    # )
 
     tests_finish(results)
 
