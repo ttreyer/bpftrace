@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include "inline.h"
 #ifdef HAVE_LIBSYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
@@ -161,6 +162,44 @@ int BPFtrace::add_probe(ast::ASTContext &ctx,
       probe.funcs = std::vector<std::string>(matches.begin(), matches.end());
       resources.probes.push_back(std::move(probe));
     }
+  } else if (probetype(ap.provider) == ProbeType::kprobe) {
+    bool locations_from_dwarf = false;
+
+    auto kernel = util::find_vmlinux();
+
+    // If the user specified an address/offset, do not overwrite
+    // their choice with locations from the DebugInfo.
+    if (probe.address == 0 && probe.func_offset == 0) {
+      auto type_id = btf_->get_btf_id(probe.attach_point, {});
+      std::cout << "BTF type_id = " << type_id << std::endl;
+      auto fd = open("/tmp/inline_expansions.btf", O_RDONLY);
+      if (fd < 0) throw std::runtime_error("Failed to open inline_expansions.btf");
+      std::vector<std::byte> file_content(lseek(fd, 0, SEEK_END));
+      lseek(fd, 0, SEEK_SET);
+      if (read(fd, file_content.data(), file_content.size()) < 0) {
+        throw std::runtime_error("Failed to read inline_expansions.btf");
+      }
+      close(fd);
+      if (auto *inline_info = inline_info__parse(std::span(file_content))) {
+        auto [begin, end] = inline_info->instances.equal_range(type_id);
+        for (auto it = begin; it != end; ++it) {
+          std::cout << "inline instance = " << it->second->insn_offset << std::endl;
+
+          // Clear the attach point, so the address will be used instead
+          Probe probe_copy = probe;
+          probe_copy.attach_point.clear();
+          probe_copy.address = it->second->insn_offset;
+          resources.probes.push_back(std::move(probe_copy));
+
+          // Keep it to FALSE so we still resolve the symbol
+          locations_from_dwarf = false;
+        }
+      }
+    }
+
+    // Otherwise, use the location from the symbol table.
+    if (!locations_from_dwarf)
+      resources.probes.push_back(std::move(probe));
   } else {
     resources.probes.emplace_back(std::move(probe));
   }

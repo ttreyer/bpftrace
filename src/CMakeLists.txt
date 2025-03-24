@@ -23,6 +23,7 @@ add_library(runtime STATIC
   config.cpp
   disasm.cpp
   dwarf_parser.cpp
+  inline.cpp
   format_string.cpp
   globalvars.cpp
   log.cpp
