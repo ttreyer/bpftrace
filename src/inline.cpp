@@ -19,7 +19,7 @@ static void inline_info__parse_instances(struct inline_info *info) {
 	while (cursor < end) {
 		uint16_t param_count = 0;
 		std::memcpy(&param_count, cursor + offsetof(struct inline_instance, param_count), sizeof(param_count));
-		auto instance_size = sizeof(struct inline_instance) + param_count * sizeof(struct inline_parameter);
+		auto instance_size = sizeof(struct inline_instance) - 2 + param_count * sizeof(struct inline_parameter);
 		auto *instance = reinterpret_cast<struct inline_instance*>(malloc(instance_size));
 		std::memcpy(instance, cursor, instance_size);
 		info->instances.insert({instance->type_id, instance});

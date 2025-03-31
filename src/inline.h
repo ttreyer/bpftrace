@@ -23,7 +23,7 @@ struct loc {
 };
 
 struct inline_parameter {
-	struct loc *location[16];
+	uint32_t offset;
 };
 
 typedef unsigned int type_id_t;
