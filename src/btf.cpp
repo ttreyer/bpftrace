@@ -49,7 +49,7 @@ BTF::BTF(const std::set<std::string> &modules)
   char *path = std::getenv("BPFTRACE_BTF");
   if (path) {
     btf_objects.push_back(
-        BTFObj{ .btf = btf__parse_raw(path), .id = 0, .name = "" });
+        BTFObj{ .btf = btf__parse(path, NULL), .id = 0, .name = "" });
     vmlinux_btf = btf_objects.back().btf;
     if (!vmlinux_btf) {
       LOG(WARNING) << "BTF: failed to parse BTF from " << path;

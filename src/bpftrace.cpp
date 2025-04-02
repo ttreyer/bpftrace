@@ -165,8 +165,6 @@ int BPFtrace::add_probe(ast::ASTContext &ctx,
   } else if (probetype(ap.provider) == ProbeType::kprobe) {
     bool locations_from_dwarf = false;
 
-    auto kernel = util::find_vmlinux();
-
     // If the user specified an address/offset, do not overwrite
     // their choice with locations from the DebugInfo.
     if (probe.address == 0 && probe.func_offset == 0) {
@@ -183,7 +181,7 @@ int BPFtrace::add_probe(ast::ASTContext &ctx,
       if (auto *inline_info = inline_info__parse(std::span(file_content))) {
         auto [begin, end] = inline_info->instances.equal_range(type_id);
         for (auto it = begin; it != end; ++it) {
-          std::cout << "inline instance = " << it->second->insn_offset << std::endl;
+          std::cout << "inline instance = " << (void*)it->second->insn_offset << std::endl;
 
           // Clear the attach point, so the address will be used instead
           Probe probe_copy = probe;
