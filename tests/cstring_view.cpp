@@ -13,11 +13,14 @@ TEST(cstring_view, c_string)
   cstring_view sv{ str };
 
   EXPECT_EQ("abc", sv);
+  EXPECT_EQ(3, sv.length());
 
   EXPECT_EQ('a', sv[0]);
   EXPECT_EQ('b', sv[1]);
   EXPECT_EQ('c', sv[2]);
-  EXPECT_EQ('\0', sv[3]);
+  // #4001: The NULL terminator is out of the string_view range,
+  //        so it is incorrect to try and access it.
+  //EXPECT_EQ('\0', sv[3]);
 }
 
 TEST(cstring_view, std_string)
@@ -26,11 +29,14 @@ TEST(cstring_view, std_string)
   cstring_view sv{ str };
 
   EXPECT_EQ("abc", sv);
+  EXPECT_EQ(3, sv.length());
 
   EXPECT_EQ('a', sv[0]);
   EXPECT_EQ('b', sv[1]);
   EXPECT_EQ('c', sv[2]);
-  EXPECT_EQ('\0', sv[3]);
+  // #4001: The NULL terminator is out of the string_view range,
+  //        so it is incorrect to try and access it.
+  //EXPECT_EQ('\0', sv[3]);
 }
 
 TEST(cstring_view, std_string_view)
